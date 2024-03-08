@@ -9,8 +9,6 @@ def index():
     return 'Hello, World!'
 
 
-@app.route('/users', methods=['GET', 'POST'])
+@app.post('/users')
 def users():
-    if request.method == 'POST':
-        return 'Hello from POST /users'
-    return 'Hello from GET /users'
+    return 'Users', 302
