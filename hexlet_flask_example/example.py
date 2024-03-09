@@ -1,14 +1,22 @@
-from flask import Flask, request
+from flask import Flask, render_template
 
 # Это callable WSGI-приложение
 app = Flask(__name__)
 
 
-@app.route('/')
-def index():
-    return 'Hello, World!'
+@app.route('/users/<id>')
+def users(id):
+
+    return render_template(
+        'index.html',
+        name=id,
+    )
 
 
-@app.post('/users')
-def users():
-    return 'Users', 302
+@app.route('/courses/<id>')
+def courses(id):
+
+    return render_template(
+        'show.html',
+        id=id,
+    )
