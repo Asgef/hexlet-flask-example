@@ -1,10 +1,17 @@
-from flask import Flask
+from flask import Flask, render_template, request
 
 app = Flask(__name__)
 
 
-@app.route('/courses/<id>')
-def courses(id):
-    return f'Course id: {id}'
+users = ['mike', 'mishel', 'adel', 'keks', 'kamila']
 
 
+@app.route('/users')
+def get_users():
+    term = request.args.get('term', '')
+    filtered_users = list(filter(lambda user: term in user, users))
+    return render_template(
+        'users/index.html',
+        users=filtered_users,
+        sarch=term,
+    )
