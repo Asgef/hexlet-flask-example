@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect
+from flask import Flask, render_template, request, redirect, url_for
 from random import randint
 from json import dumps
 import os
@@ -15,7 +15,7 @@ def users_post():
         id = randint(100, 999)
         user['id'] = id
         repo.write(dumps(user))
-    return redirect('/users', code=302)
+    return redirect(url_for('users_post'), code=302)
 
 
 @app.route('/users/new')
