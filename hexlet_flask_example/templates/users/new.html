@@ -6,6 +6,13 @@
 </head>
 <body>
 <h1>New user</h1>
+{% if messages %}
+  <ul class=flashes>
+  {% for category, message in messages %}
+    <li class="{{ category }}">{{ message }}</li>
+  {% endfor %}
+  </ul>
+{% endif %}
 <form action="{{url_for('users_post')}}" method="post">
   <div>
     <label>
