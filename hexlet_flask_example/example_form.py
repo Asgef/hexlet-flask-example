@@ -7,33 +7,40 @@ from random import randint
 from json import dumps
 import os
 
+def validate(data):
+    errors = {}
+    if not data.get('name') or len(data.get('name')) < 4:  # Используем .get для избежания KeyError
+        errors['name'] = "Nickname must be grated 4 characters"
+    return errors
+
 
 app = Flask(__name__)
 app.secret_key = "secret_key"
 
 
 @app.post('/users')
-def users_post():
-    user_db_path = os.path.join(os.path.dirname(__file__), 'templates', 'users', 'user_db')
-    with open(user_db_path, 'a') as repo:
-        user = request.form.to_dict()
-        id = randint(100, 999)
-        user['id'] = id
-        repo.write(dumps(user))
-        flash('New user added', 'success')
-    return redirect(url_for('users_new'), code=302)
+def post_users():
+    user = request.form.to_dict()
+    errors = validate(user)
+    if errors:
+        return render_template(
+            'users/new.html',
+            user=user,
+            errors=errors
+        ), 422
+    flash('School has been created', 'success')
+    return redirect(url_for('get_user'))
 
 
 @app.route('/users/new')
-def users_new():
-    user = {'name': '',
-            'email': '',
-            }
-    messages = get_flashed_messages(with_categories=True)
-    print(messages)
-
+def new_user():
+    user = {
+        'name': '',
+        'email': '',
+    }
+    errors = {}
     return render_template(
         'users/new.html',
         user=user,
-        messages=messages
+        errors=errors
     )

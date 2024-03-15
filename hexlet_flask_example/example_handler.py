@@ -11,7 +11,7 @@ def get_users():
     term = request.args.get('term', '')
     filtered_users = list(filter(lambda user: term in user, users))
     return render_template(
-        'users/index.html',
+        'users/new.html',
         users=filtered_users,
         sarch=term,
     )

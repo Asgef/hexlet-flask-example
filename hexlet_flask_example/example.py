@@ -19,7 +19,7 @@ def get_courses():
             courses = []
 
     return render_template(
-           'courses/index.html',
+           'courses/new.html',
            courses=courses,
            )
 
