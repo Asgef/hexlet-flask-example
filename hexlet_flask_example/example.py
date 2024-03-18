@@ -1,44 +1,56 @@
-from flask import Flask, render_template
+from dotenv import load_dotenv
+from flask import (
+    Flask,
+    render_template,
+    request,
+    redirect,
+    url_for,
+    flash,
+    get_flashed_messages
+)
+from random import randint
+from json import dumps
 import os
-import json
+from .repository import UsersRepository
+from .validator import validate
 
-# Это callable WSGI-приложение
+
+load_dotenv()
+
+
 app = Flask(__name__)
+app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
 
 
-@app.route('/courses')
-def get_courses():
-    courses_db_path = os.path.join(
-        os.path.dirname(__file__), 'templates', 'courses', 'courses_db.json'
-    )
-    with open(courses_db_path, 'r') as repo:
-        content = repo.read()
-        if content:
-            courses = json.loads(content)
-        else:
-            courses = []
+@app.route('/')
+def index():
+    messages = get_flashed_messages(with_categories=True)
 
     return render_template(
-           'courses/new.html',
-           courses=courses,
-           )
+        'index.html',
+        messages=messages
+        )
 
 
-@app.route('/courses/<id>')
-def get_course(id):
-    courses_db_path = os.path.join(
-        os.path.dirname(__file__), 'templates', 'courses', 'courses_db.json'
-    )
-    with open(courses_db_path, 'r') as repo:
-        content = repo.read()
-        courses = json.loads(content) if content else []
+@app.post('/users')
+def users_post():
+    repo = UsersRepository()
+    user = request.form.to_dict()
+    user_id = randint(100, 999)
+    user['id'] = user_id
+    repo.data_write(dumps(user))
+    flash('User Added', 'success')
 
-    # Поиск курса по ID
-    course = next((item for item in courses if item.get("id") == id), None)
-    if course is None:
-        return 'Page not found', 404
+    return redirect(url_for('index'), code=302)
+
+
+@app.route('/users/new')
+def users_new():
+    user = {'name': '',
+            'email': '',
+            }
 
     return render_template(
-          'courses/show.html',
-          course=course,
-          )
+        'users/new.html',
+        user=user
+    )

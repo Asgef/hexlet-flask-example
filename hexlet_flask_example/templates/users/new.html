@@ -1,26 +1,25 @@
-{% extends "layout.html" %}
-
-{% block title %}New User{% endblock %}
-
-{% block content %}
-<h1>New User</h1>
-<form action="/users" method="post">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Forn</title>
+</head>
+<body>
+<h1>New user</h1>
+<form action="{{url_for('users_post')}}" method="post">
   <div>
     <label>
       Nickname:
-      <input type="text" required name="name" value="{{ user.name|default('', true) }}">
+      <input type="text" name="name" value="{{ user.name }}">
     </label>
-    {% if errors['name'] %}
-    <div>{{ errors['name'] }}</div>
-    {% endif %}
+  </div>
+  <div>
     <label>
-      email
+      Email
       <input type="email" required name="email" value="{{ user.email }}">
     </label>
-    {% if errors['email'] %}
-    <div>{{ errors['email'] }}</div>
-    {% endif %}
   </div>
   <input type="submit" value="Sign Up">
 </form>
-{% endblock %}
+</body>
+</html>
