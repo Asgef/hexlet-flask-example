@@ -1,4 +1,5 @@
 import os
+import json
 
 
 class UsersRepository:
@@ -9,9 +10,15 @@ class UsersRepository:
 
     def data_write(self, data):
         with open(self.user_db, 'a') as repo:
-            repo.write(data)
+            repo.write(json.dumps(data))
 
-    def data_read(self, data):
+    def content(self):
         with open(self.user_db, 'r') as repo:
-            result = repo.read(data)
+            result = json.loads(repo.read())
             return result
+
+    def find(self, id):
+        items = self.content()
+        for item in items:
+            if str(item['id']) == id:
+                return item

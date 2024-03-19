@@ -3,16 +3,14 @@ from flask import (
     Flask,
     render_template,
     request,
-    redirect,
-    url_for,
-    flash,
-    get_flashed_messages
+    # redirect,
+    # url_for,
+    # flash,
+    # get_flashed_messages
 )
-from random import randint
-from json import dumps
 import os
 from .repository import UsersRepository
-from .validator import validate
+# from .validator import validate
 
 
 load_dotenv()
@@ -24,33 +22,38 @@ app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
 
 @app.route('/')
 def index():
-    messages = get_flashed_messages(with_categories=True)
+    # messages = get_flashed_messages(with_categories=True)
 
     return render_template(
         'index.html',
-        messages=messages
+        # messages=messages
         )
 
 
-@app.post('/users')
-def users_post():
+@app.route('/users')
+def users():
     repo = UsersRepository()
-    user = request.form.to_dict()
-    user_id = randint(100, 999)
-    user['id'] = user_id
-    repo.data_write(dumps(user))
-    flash('User Added', 'success')
+    per = 5
+    page = request.args.get('page', 1, type=int)
+    offset = (page -1) * per
+    all_users = repo.content()
+    user_at_page = all_users[offset:page * per]
+    return render_template(
+        'users/index.html',
+        page=page,
+        users=user_at_page,
+    )
 
-    return redirect(url_for('index'), code=302)
 
-
-@app.route('/users/new')
-def users_new():
-    user = {'name': '',
-            'email': '',
-            }
+@app.route('/users/<id>')
+def get_user(id):
+    repo = UsersRepository()
+    user = repo.find(id)
+    print(user)
+    if not user:
+        return 'Page not found', 404
 
     return render_template(
-        'users/new.html',
+        'users/show.html',
         user=user
     )

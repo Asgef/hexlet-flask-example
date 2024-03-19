@@ -1,23 +1,9 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <title>Hello!</title>
-</head>
-<body>
-<h1>Users</h1>
-<p><a href="{{ url_for('users_new') }}">Create user</a></p>
-
-
-<!-- BEGIN (write your solution here) -->
-{% if messages %}
-<ul class=flashes>
-  {% for category, message in messages %}
-  <li class="{{ category }}">{{ message }}</li>
-  {% endfor %}
-</ul>
-{% endif %}
-<!-- END -->
-
-</body>
+<!doctype html>
+<html>
+  <head>
+    <title>Example application</title>
+  </head>
+  <body>
+    <a href="/users">Users</a>
+  </body>
 </html>
