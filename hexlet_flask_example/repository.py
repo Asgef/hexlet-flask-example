@@ -8,9 +8,23 @@ class UsersRepository:
             os.path.dirname(__file__), 'templates', 'users', 'user_db'
         )
 
-    def data_write(self, data):
-        with open(self.user_db, 'a') as repo:
-            repo.write(json.dumps(data))
+    def save(self, data):
+        # Проверяем, существует ли файл
+        if not os.path.exists(self.user_db):
+            with open(self.user_db, 'w') as repo:
+                json.dump([], repo)  # Создаём файл с пустым списком
+
+        # Читаем существующие данные
+        with open(self.user_db, 'r') as repo:
+            try:
+                repo_list = json.load(repo)
+            except json.JSONDecodeError:
+                repo_list = []  # В случае ошибки декодирования JSON присваиваем пустой список
+
+        # Добавляем новые данные и записываем обратно
+        repo_list.append(data)
+        with open(self.user_db, 'w') as repo:
+            json.dump(repo_list, repo)
 
     def content(self):
         with open(self.user_db, 'r') as repo:
