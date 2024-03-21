@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Forn</title>
+</head>
+<body>
+<h1>Update user</h1>
+<form action="{{url_for('update_user', id=user.id)}}" method="post">
+  <div>
+    <label>
+      Nickname:
+      <input type="text" name="name" value="{{ user.name }}">
+    </label>
+  </div>
+  <div>
+    <label>
+      Email
+      <input type="email" required name="email" value="{{ user.email }}">
+    </label>
+    {% if errors['body'] %}
+      <div>{{ errors['body'] }}</div>
+    {% endif %}
+  </div>
+  <input type="submit" value="Update user">
+</form>
+</body>
+</html>

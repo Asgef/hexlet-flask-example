@@ -36,7 +36,7 @@ def users():
     repo = UsersRepository()
     per = 5
     page = request.args.get('page', 1, type=int)
-    offset = (page -1) * per
+    offset = (page - 1) * per
     all_users = repo.content()
     user_at_page = all_users[offset:page * per]
     return render_template(
@@ -89,3 +89,34 @@ def set_user():
     repo.save(user)
     flash('User has been created', 'success')
     return redirect(url_for('index'))
+
+
+@app.route('/users/<id>/update', methods=['GET', 'POST'])
+def update_user(id):
+    repo = UsersRepository()
+    user = repo.find(id)
+    errors = []
+
+    if request.method == 'GET':
+        return render_template(
+            'users/edit.html',
+            user=user,
+            errors=errors
+        )
+
+    if request.method == 'POST':
+        data = request.form.to_dict()
+        errors = validate(data)
+
+        if errors:
+            return render_template(
+                'users/edit.html',
+                user=user,
+                errors=errors
+            ), 422
+        user['name'] = data['name']
+        user['email'] = data['email']
+        repo.delete(user['id'])
+        repo.save(user)
+        flash('User has been updated', 'success')
+        return redirect(url_for('index'))
