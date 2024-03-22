@@ -120,3 +120,11 @@ def update_user(id):
         repo.save(user)
         flash('User has been updated', 'success')
         return redirect(url_for('index'))
+
+
+@app.route('/users/<id>/delete', methods=['POST'])
+def delete_user(id):
+    repo = UsersRepository()
+    repo.delete(id)
+    flash('User has been deleted', 'success')
+    return redirect(url_for('index'))
