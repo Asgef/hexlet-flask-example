@@ -9,9 +9,9 @@ from flask import (
     get_flashed_messages
 )
 import os
-from .repository import UsersRepository
 from .validator import validate
-from random import randint
+import json
+from hexlet_flask_example import user_cookies
 
 
 load_dotenv()
@@ -33,12 +33,12 @@ def index():
 
 @app.route('/users')
 def users():
-    repo = UsersRepository()
     per = 5
     page = request.args.get('page', 1, type=int)
     offset = (page - 1) * per
-    all_users = repo.content()
-    user_at_page = all_users[offset:page * per]
+    all_usr_json = request.cookies.get('all_usr', '[]')
+    all_usr = json.loads(all_usr_json)
+    user_at_page = all_usr[offset:page * per]
     return render_template(
         'users/index.html',
         page=page,
@@ -46,10 +46,11 @@ def users():
     )
 
 
-@app.route('/users/<id>')
+@app.route('/users/<int:id>')
 def get_user(id):
-    repo = UsersRepository()
-    user = repo.find(id)
+    all_usr_json = request.cookies.get('all_usr', '[]')
+    all_usr = json.loads(all_usr_json)
+    user = user_cookies.find(all_usr, id)
     if not user:
         return 'Page not found', 404
 
@@ -73,9 +74,10 @@ def add_user():
     )
 
 
-@app.post('/users')
+@app.route('/users', methods=['POST'])
 def set_user():
-    repo = UsersRepository()
+    all_usr_json = request.cookies.get('all_usr', '[]')
+    all_usr = json.loads(all_usr_json)
     user = request.form.to_dict()
     errors = validate(user)
     if errors:
@@ -84,17 +86,21 @@ def set_user():
             user=user,
             errors=errors
         ), 422
-    user_id = randint(100, 999)
+    user_id = user_cookies.gen_usr_id(all_usr)
     user['id'] = user_id
-    repo.save(user)
+    all_usr.append(user)
+    encoded_users = json.dumps(all_usr)
+    response = redirect(url_for('index'))
+    response.set_cookie('all_usr', encoded_users)
     flash('User has been created', 'success')
-    return redirect(url_for('index'))
+    return response
 
 
-@app.route('/users/<id>/update', methods=['GET', 'POST'])
+@app.route('/users/<int:id>/update', methods=['GET', 'POST'])
 def update_user(id):
-    repo = UsersRepository()
-    user = repo.find(id)
+    all_usr_json = request.cookies.get('all_usr', '[]')
+    all_usr = json.loads(all_usr_json)
+    user = user_cookies.find(all_usr, id)
     errors = []
 
     if request.method == 'GET':
@@ -116,15 +122,23 @@ def update_user(id):
             ), 422
         user['name'] = data['name']
         user['email'] = data['email']
-        repo.delete(user['id'])
-        repo.save(user)
+        all_usr = user_cookies.delete(all_usr, id)
+        all_usr.append(user)
+        encoded_users = json.dumps(all_usr)
+        response = redirect(url_for('index'))
+        response.set_cookie('all_usr', encoded_users)
         flash('User has been updated', 'success')
-        return redirect(url_for('index'))
+        return response
 
 
-@app.route('/users/<id>/delete', methods=['POST'])
+@app.route('/users/<int:id>/delete', methods=['POST'])
 def delete_user(id):
-    repo = UsersRepository()
-    repo.delete(id)
+    all_usr_json = request.cookies.get('all_usr', '[]')
+    all_usr = json.loads(all_usr_json)
+    all_usr = user_cookies.delete(all_usr, id)
+    print(f'print {all_usr}')
+    encoded_users = json.dumps(all_usr)
+    response = redirect(url_for('index'))
+    response.set_cookie('all_usr', encoded_users)
     flash('User has been deleted', 'success')
-    return redirect(url_for('index'))
+    return response
